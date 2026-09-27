@@ -1,59 +1,245 @@
 @import "tailwindcss";
 
-@theme inline {
-  --color-gold: #e6a347;
-  --color-gold-light: #fd9609;
-  --color-ink: #2e2e2e;
-  --color-cream: #f8f7f4;
-  --color-hairline: #e1e1e1;
+/* ==========================================================================
+   JENDS DESIGN SYSTEM
+   Matched to the Insider Madeira reference: warm beige + near-black, zero
+   accent colour, oversized light-weight display type, pill buttons paired
+   with a circular arrow badge, and very large section rhythm.
+   ========================================================================== */
 
-  --font-sans: var(--font-lato), sans-serif;
-  --font-display: var(--font-playfair), serif;
-  --font-card: var(--font-josefin), sans-serif;
-  --font-quote: var(--font-cormorant), serif;
+@theme {
+  /* ---- Palette: exact reference values --------------------------------- */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1ede5; /* beige — alternating sections, icon wells */
+  --color-surface-sunken: #f9f9f9; /* light — navbar, quiet panels */
+  --color-surface-inverse: #201f1d; /* black — footer, badges, focus */
+
+  --color-ink: #201f1d;
+  --color-ink-muted: #6a6a6a; /* light-grey — body copy, labels */
+  --color-ink-inverse: #ffffff;
+
+  --color-line: #c6c3bb; /* darker-beige — hairlines */
+  --color-line-soft: #e4dfd6;
+
+  --color-error: #b42318;
+
+  /* ---- Pills, not near-sharp: the reference sets border-radius:50vw ---- */
+  --radius-DEFAULT: 2px;
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 2px;
+  /* The one deliberate soft radius: icon wells and cards (reference .25rem) */
+  --radius-well: 4px;
+
+  /* ---- Spacing: the reference runs 14em top/bottom per section --------- */
+  --spacing-3xs: 4px;
+  --spacing-2xs: 8px;
+  --spacing-xs: 12px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 48px;
+  --spacing-2xl: 64px;
+  --spacing-3xl: 96px;
+  --spacing-4xl: 128px;
+  --spacing-5xl: 160px;
+  --spacing-6xl: 224px; /* 14em — reference section rhythm */
+  --spacing-7xl: 288px;
+
+  /* ---- Type: reference em values resolved against its 16px base ------- */
+  --text-display: clamp(2.5625rem, 1.1rem + 3.2vw, 3.375rem); /* hero h1 */
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 400;
+
+  /* The oversized centred heading used on the about block (5.9375em) */
+  --text-mega: clamp(2.5625rem, 0.6rem + 4.4vw, 5.9375rem);
+  --text-mega--line-height: 1.02;
+  --text-mega--letter-spacing: -0.03em;
+  --text-mega--font-weight: 400;
+
+  --text-heading: clamp(1.75rem, 1.2rem + 1.4vw, 3.375rem); /* 3.375em */
+  --text-heading--line-height: 1.05;
+  --text-heading--letter-spacing: -0.02em;
+  --text-heading--font-weight: 400;
+
+  --text-card: 2.5rem; /* h3 */
+  --text-card--line-height: 1.2;
+  --text-card--letter-spacing: -0.02em;
+  --text-card--font-weight: 400;
+
+  --text-h5: 1.5rem; /* h5 */
+  --text-h5--line-height: 1.4;
+  --text-h5--font-weight: 600;
+
+  --text-h6: 1.25rem; /* h6 */
+  --text-h6--line-height: 1.4;
+  --text-h6--font-weight: 600;
+
+  --text-tagline: 0.875rem; /* .tagline / .navbar-link */
+  --text-tagline--line-height: 1;
+  --text-tagline--letter-spacing: 0.01em;
+
+  --text-btn: 0.875rem; /* .button */
+  --text-btn--line-height: 1;
+  --text-btn--font-weight: 500;
+
+  --text-lede: 1.25rem; /* .text-size-large */
+  --text-lede--line-height: 1.45;
+
+  --text-body: 1rem; /* 1rem base */
+  --text-body--line-height: 1.6;
+
+  --text-body-lg: 1.125rem; /* .text-size-medium */
+  --text-body-lg--line-height: 1.7;
+
+  --text-small: 0.875rem; /* .why-card-p */
+  --text-small--line-height: 1.2;
+
+  --text-meta: 0.75rem; /* .text-size-tiny */
+  --text-meta--line-height: 1.4;
+
+  /* ---- Motion --------------------------------------------------------- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-:root {
-  --gold: #e6a347;
-  --gold-light: #fd9609;
-  --ink: #2e2e2e;
-  --cream: #f8f7f4;
-  --hairline: #e1e1e1;
+@theme inline {
+  --font-sans: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), ui-serif, Georgia, serif;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    background: #ffffff;
-    color: var(--ink);
-    font-family: var(--font-lato), sans-serif;
-    font-size: 17px;
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
+    font-size: 1rem;
     line-height: 1.6;
+    font-weight: 400;
+    overflow-x: clip;
   }
 
-  img {
-    color: var(--img-color, var(--ink)) !important;
-  }
-
+  /* Display type stays light — the reference sets its large headings at
+     weight 300, which is what makes it read as expensive rather than bold. */
   h1,
   h2,
-  h3,
-  h4 {
-    font-family: var(--font-playfair), serif;
+  h3 {
+    font-family: var(--font-playfair), ui-serif, Georgia, serif;
+    font-weight: 400;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
     font-weight: 600;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-surface-inverse);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.9);
   }
 
   ::selection {
-    background: var(--gold);
+    background: var(--color-surface-inverse);
     color: #ffffff;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
   }
 }
 
-@layer utilities {
-  .form-field {
-    background-color: color(srgb 0 0 0 / 0.02);
+@layer components {
+  /* ---- Scroll reveal -------------------------------------------------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 600ms var(--ease-out-expo),
+      transform 600ms var(--ease-out-expo);
+  }
+
+  .reveal[data-visible="true"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Arrow sits inside the 26px badge and nudges up-right on group hover. */
+@utility btn-arrow {
+  width: 100%;
+  height: 100%;
+  transition: transform 300ms var(--ease-out-expo);
+}
+
+@utility link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  transition: background-size 200ms var(--ease-out-expo);
+
+  &:hover {
+    background-size: 100% 1px;
+  }
+}
+
+@utility media-frame {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-surface-alt);
+  border-radius: 2px;
+}
+
+@utility aspect-portrait {
+  aspect-ratio: 4 / 5;
+}
+
+@utility aspect-square-safari {
+  aspect-ratio: 1 / 1;
+}
+
+@utility aspect-landscape {
+  aspect-ratio: 3 / 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
   }
 }

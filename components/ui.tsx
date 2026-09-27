@@ -1,27 +1,61 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import HeroVideo from "@/components/HeroVideo";
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
 
 export function Container({ children }: { children: ReactNode }) {
   return <div className="mx-auto w-full max-w-[1240px] px-5">{children}</div>;
 }
 
+/** Vertical rhythm: the reference runs 14em (224px) top/bottom per section. */
+export function Section({
+  children,
+  tone = "surface",
+  className = "",
+  id,
+}: {
+  children: ReactNode;
+  tone?: "surface" | "alt" | "inverse";
+  className?: string;
+  id?: string;
+}) {
+  const tones = {
+    surface: "bg-surface text-ink",
+    alt: "bg-surface-alt text-ink",
+    inverse: "bg-surface-inverse text-ink-inverse",
+  } as const;
+
+  return (
+    <section id={id} className={`${tones[tone]} py-4xl lg:py-6xl ${className}`}>
+      {children}
+    </section>
+  );
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
 export function Eyebrow({
   children,
-  tone = "gold",
-  align = "center",
+  tone = "dark",
+  align = "left",
   className = "",
 }: {
   children: ReactNode;
-  tone?: "gold" | "white";
-  align?: "center" | "left" | "start";
+  tone?: "dark" | "light";
+  align?: "left" | "center";
   className?: string;
 }) {
   return (
     <p
-      className={`text-[16px] leading-[27px] tracking-[1px] ${
-        tone === "gold" ? "text-gold" : "text-white"
-      } ${align === "center" ? "text-center" : align === "left" ? "text-left" : "text-start"} ${className}`}
+      className={`text-tagline ${
+        tone === "light" ? "text-ink-inverse" : "text-ink-muted"
+      } ${align === "center" ? "text-center" : "text-left"} ${className}`}
     >
       {children}
     </p>
@@ -31,212 +65,425 @@ export function Eyebrow({
 export function SectionTitle({
   children,
   tone = "dark",
-  align = "center",
+  align = "left",
   className = "",
+  as: Tag = "h2",
 }: {
   children: ReactNode;
   tone?: "dark" | "light";
-  align?: "center" | "left" | "start";
+  align?: "left" | "center";
+  className?: string;
+  as?: "h1" | "h2";
+}) {
+  return (
+    <Tag
+      className={`text-heading ${
+        tone === "light" ? "text-ink-inverse" : "text-ink"
+      } ${align === "center" ? "text-center" : "text-left"} ${className}`}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/** Eyebrow → title → lede. The single section-header pattern site-wide. */
+export function SectionHeader({
+  eyebrow,
+  title,
+  lede,
+  tone = "dark",
+  align = "left",
+  className = "",
+}: {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  tone?: "dark" | "light";
+  align?: "left" | "center";
   className?: string;
 }) {
   return (
-    <h2
-      className={`font-display text-[32px] leading-[1.2] font-semibold tracking-[-1px] uppercase md:text-[42px] md:leading-[50.4px] ${
-        tone === "light" ? "text-white" : "text-black"
-      } ${align === "center" ? "text-center" : align === "left" ? "text-left" : "text-start"} ${className}`}
+    <div
+      className={`${align === "center" ? "mx-auto max-w-[640px] text-center" : "max-w-[640px]"} ${className}`}
     >
-      {children}
-    </h2>
+      {eyebrow ? (
+        <Eyebrow tone={tone} align={align}>
+          {eyebrow}
+        </Eyebrow>
+      ) : null}
+      <SectionTitle tone={tone} align={align} className="mt-3">
+        {title}
+      </SectionTitle>
+      {lede ? (
+        <p
+          className={`mt-5 text-lede ${
+            tone === "light" ? "text-ink-inverse/80" : "text-ink-muted"
+          }`}
+        >
+          {lede}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
 export function PageTitle({
   children,
+  tone = "light",
   className = "",
 }: {
   children: ReactNode;
+  tone?: "dark" | "light";
   className?: string;
 }) {
   return (
     <h1
-      className={`mt-[10px] mb-[20px] text-center font-display text-[32px] leading-[1.2] font-semibold uppercase text-white md:text-[54px] md:leading-[64.8px] ${className}`}
+      className={`text-display ${tone === "light" ? "text-ink-inverse" : "text-ink"} ${className}`}
     >
       {children}
     </h1>
   );
 }
 
-export function SectionSubtitle({
-  children,
-  tone = "dark",
-}: {
-  children: ReactNode;
-  tone?: "dark" | "light";
-}) {
+/* ==========================================================================
+   Buttons — one system, one shape: label + circular arrow badge.
+   Matches the reference language (text block + rotating arrow disc) while
+   staying near-sharp to keep the editorial feel.
+   ========================================================================== */
+
+/**
+ * Buttons — the reference language, reproduced structurally:
+ * a flex row holding a fully-rounded pill (.button, border-radius:50vw)
+ * followed by a separate 26px circular badge (.btn-icon-wrapper) with an
+ * up-right arrow. The two are siblings, not nested.
+ */
+
+type ButtonTone = "dark" | "light";
+
+/** The 1.625rem (26px) circular arrow disc. */
+function ArrowBadge({ tone }: { tone: ButtonTone }) {
   return (
-    <p
-      className={`text-[16px] leading-[27.2px] ${
-        tone === "light" ? "text-white" : "text-ink"
+    <span
+      aria-hidden="true"
+      className={`grid h-[26px] w-[26px] shrink-0 place-items-center rounded-full p-[6px] transition-colors duration-300 ease-out-expo ${
+        tone === "dark"
+          ? "bg-surface-inverse text-ink-inverse"
+          : "bg-surface-sunken text-ink"
       }`}
     >
-      {children}
-    </p>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="btn-arrow h-full w-full group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
+      >
+        <path d="M7 17 17 7M9 7h8v8" />
+      </svg>
+    </span>
   );
 }
 
-export function GoldButton({
+export function PrimaryButton({
   href,
   children,
+  tone = "dark",
   className = "",
 }: {
   href: string;
   children: ReactNode;
+  tone?: ButtonTone;
+  className?: string;
+}) {
+  const pills = {
+    dark: "border-surface-inverse bg-surface-inverse text-ink-inverse hover:bg-transparent hover:text-ink",
+    light: "border-surface-sunken bg-surface-sunken text-ink hover:bg-transparent hover:text-ink-inverse",
+  } as const;
+
+  return (
+    <Link
+      href={href}
+      className={`group inline-flex items-center gap-2 ${className}`}
+    >
+      <span
+        className={`inline-flex items-center justify-center rounded-[50vw] border px-5 py-3 text-btn transition-colors duration-300 ease-out-expo ${pills[tone]}`}
+      >
+        {children}
+      </span>
+      <ArrowBadge tone={tone} />
+    </Link>
+  );
+}
+
+export function SecondaryButton({
+  href,
+  children,
+  tone = "dark",
+  className = "",
+}: {
+  href: string;
+  children: ReactNode;
+  tone?: ButtonTone;
+  className?: string;
+}) {
+  const pills = {
+    dark: "border-surface-inverse bg-transparent text-ink hover:bg-surface-inverse hover:text-ink-inverse",
+    light: "border-surface-sunken bg-transparent text-ink-inverse hover:bg-surface-sunken hover:text-ink",
+  } as const;
+
+  return (
+    <Link
+      href={href}
+      className={`group inline-flex items-center gap-2 ${className}`}
+    >
+      <span
+        className={`inline-flex items-center justify-center rounded-[50vw] border px-5 py-3 text-btn transition-colors duration-300 ease-out-expo ${pills[tone]}`}
+      >
+        {children}
+      </span>
+      <ArrowBadge tone={tone} />
+    </Link>
+  );
+}
+
+/** Tertiary: typographic link with an animated rule. */
+export function TextLink({
+  href,
+  children,
+  tone = "dark",
+  className = "",
+}: {
+  href: string;
+  children: ReactNode;
+  tone?: ButtonTone;
   className?: string;
 }) {
   return (
     <Link
       href={href}
-      className={`inline-block border-2 border-gold bg-gold px-7 py-[14px] text-center text-[17px] leading-[1.5] text-white transition-colors duration-200 hover:border-gold-light hover:bg-gold-light ${className}`}
+      className={`group/tl inline-flex min-h-11 items-center gap-2 text-body ${
+        tone === "light" ? "text-ink-inverse" : "text-ink"
+      } ${className}`}
     >
-      <span>{children}</span>
-    </Link>
-  );
-}
-export function OutlineButton({
-  href,
-  children,
-  className = "",
-}: {
-  href: string;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`inline-block border-2 border-white bg-[rgba(2,1,1,0)] px-7 py-[14px] text-center text-[17px] leading-[1.5] text-white transition-colors duration-200 hover:bg-white hover:text-ink ${className}`}
-    >
-      <span>{children}</span>
+      <span className="link-underline">{children}</span>
+      <span
+        aria-hidden="true"
+        className="transition-transform duration-300 ease-out-expo group-hover/tl:translate-x-1"
+      >
+        &rarr;
+      </span>
     </Link>
   );
 }
 
-export function CtaButtons({ className = "" }: { className?: string }) {
+/**
+ * The one booking pair used site-wide. The primary label is identical on
+ * every page so the action is never ambiguous.
+ */
+export function CtaButtons({
+  tone = "dark",
+  className = "",
+}: {
+  tone?: "dark" | "light";
+  className?: string;
+}) {
   return (
-    <div
-      className={`flex flex-wrap items-center justify-center gap-[10px] ${className}`}
-    >
-      <GoldButton href="/contact/">Book Your Safari Now</GoldButton>
-      <OutlineButton href="/menu/">View Menu</OutlineButton>
+    <div className={`flex flex-wrap items-center gap-3 ${className}`}>
+      <PrimaryButton href="/contact/" tone={tone}>
+        Plan Your Safari
+      </PrimaryButton>
+      <SecondaryButton href="/activities/" tone={tone}>
+        View Activities
+      </SecondaryButton>
     </div>
   );
 }
 
+/* ==========================================================================
+   Photography
+   ========================================================================== */
+
+export function MediaFrame({
+  src,
+  alt,
+  ratio = "portrait",
+  priority = false,
+  sizes = "(min-width: 1024px) 50vw, 100vw",
+  className = "",
+  imageClassName = "",
+}: {
+  src: string;
+  alt: string;
+  ratio?: "portrait" | "square" | "landscape" | "band";
+  priority?: boolean;
+  sizes?: string;
+  className?: string;
+  imageClassName?: string;
+}) {
+  const ratios = {
+    portrait: "aspect-portrait",
+    square: "aspect-square-safari",
+    landscape: "aspect-landscape",
+    band: "aspect-[16/9] lg:aspect-[21/9]",
+  } as const;
+
+  return (
+    <div className={`media-frame ${ratios[ratio]} ${className}`}>
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        priority={priority}
+        sizes={sizes}
+        className={`object-cover ${imageClassName}`}
+      />
+    </div>
+  );
+}
+
+/* ==========================================================================
+   Full-bleed image band
+   ========================================================================== */
+
 export function BackgroundBand({
   image,
+  video,
   children,
   className = "",
+  minHeight = "min-h-[68vh] lg:min-h-[76vh]",
+  priority = false,
 }: {
   image: string;
+  /** Optional self-hosted mp4. Plays behind `image`, which stays as the poster. */
+  video?: string;
   children: ReactNode;
   className?: string;
+  minHeight?: string;
+  priority?: boolean;
 }) {
   return (
     <section
-      className={`relative bg-cover bg-center ${className}`}
-      style={{ backgroundImage: `url(${image})` }}
+      className={`relative flex w-full items-end overflow-hidden bg-surface-inverse ${minHeight} ${className}`}
     >
-      <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
-      <div className="relative">{children}</div>
+      {video ? (
+        <HeroVideo
+          src={video}
+          poster={image}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <Image
+          src={image}
+          alt=""
+          fill
+          priority={priority}
+          sizes="100vw"
+          className="object-cover"
+        />
+      )}
+      {/* The reference sits a single 10%-black filter over its hero media
+          (rgba(0,0,0,.1)) and relies on type contrast alone. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-black/10"
+      />
+      <div className="relative w-full">{children}</div>
     </section>
   );
 }
 
-export function TourCard({
-  image,
-  imageAlt,
-  title,
-  description,
-  price,
-}: {
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+
+type CardProps = {
   image: string;
   imageAlt: string;
   title: string;
   description: string;
   price?: string;
-}) {
+};
+
+/**
+ * Tour/activity card. The reference stacks media above copy with no rule
+ * above the item, so the grid reads as a set of images rather than a list.
+ */
+function SafariCard({ image, imageAlt, title, description, price }: CardProps) {
   return (
-    <article className="flex gap-[30px] md:h-[200px] md:w-[570px] md:gap-[40px]">
-      <Image
-        src={image}
-        alt={imageAlt}
-        width={200}
-        height={200}
-        className="h-[110px] w-[110px] shrink-0 object-cover md:h-[200px] md:w-[200px]"
-      />
-      <div className="min-w-0 flex-1 md:flex md:h-[200px] md:flex-col md:justify-center">
-        <h3 className="mb-[10px] text-left font-card text-[18px] leading-[1.4] font-semibold uppercase text-black md:text-[24px] md:leading-[33.6px]">
-          {title}
-        </h3>
-        <div className="text-[15px] leading-[24px] text-ink md:text-[17px] md:leading-[27.2px]">
-          {description}
-        </div>
+    <article className="group flex flex-col">
+      <div className="media-frame aspect-square-safari w-full">
+        <Image
+          src={image}
+          alt={imageAlt}
+          fill
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]"
+        />
+      </div>
+      <div className="mt-5 flex min-w-0 flex-1 flex-col">
+        <h3 className="font-display text-h5 text-ink">{title}</h3>
+        <p className="mt-2 text-small text-ink-muted">{description}</p>
         {price ? (
-          <p className="mt-[25px] text-[20px] leading-[24px] text-gold md:text-[24px]">
-            {price}
-          </p>
+          <p className="mt-3 text-meta text-ink-muted">{price}</p>
         ) : null}
       </div>
     </article>
   );
 }
 
-export function ReadMoreLink({ href, children }: { href: string; children: ReactNode }) {
+export function TourCard(props: CardProps) {
+  return <SafariCard {...props} />;
+}
+
+export function ActivityCard(props: CardProps) {
+  return <SafariCard {...props} />;
+}
+
+/* ==========================================================================
+   Misc
+   ========================================================================== */
+
+export function Stars({ className = "" }: { className?: string }) {
   return (
-    <Link
-      href={href}
-      className="inline-flex items-center gap-2 text-[17px] leading-[27.2px] text-ink transition-colors hover:text-gold"
+    <div
+      className={`flex gap-1 text-ink ${className}`}
+      role="img"
+      aria-label="Rated 5 out of 5"
     >
-      {children}
-    </Link>
+      {Array.from({ length: 5 }, (_, index) => (
+        <svg
+          key={index}
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          className="h-[18px] w-[18px] fill-current"
+        >
+          <path d="m12 17.27 5.18 3.13-1.37-5.9 4.58-3.96-6.03-.52L12 4.5 9.64 10.02l-6.03.52 4.58 3.96-1.37 5.9z" />
+        </svg>
+      ))}
+    </div>
   );
 }
 
-export function ActivityCard({
-  image,
-  imageAlt,
-  title,
-  description,
-  price,
-}: {
-  image: string;
-  imageAlt: string;
-  title: string;
-  description: string;
-  price?: string;
-}) {
+export function CheckList({ items }: { items: string[] }) {
   return (
-    <article className="flex gap-[30px] md:h-[200px] md:w-[570px] md:gap-[40px]">
-      <Image
-        src={image}
-        alt={imageAlt}
-        width={201}
-        height={200}
-        className="h-[110px] w-[110px] shrink-0 object-cover md:h-[200px] md:w-[201.41px]"
-      />
-      <div className="flex min-w-0 flex-1 flex-col justify-center">
-        <p className="mb-[10px] text-left text-[18px] leading-[27px] text-black md:text-[22px]">
-          {title}
-        </p>
-        <div className="mb-[25px] text-left text-[15px] leading-[24px] text-ink md:text-[17px] md:leading-[27.2px]">
-          {description}
-        </div>
-        {price ? (
-          <p className="text-[20px] leading-[24px] text-gold md:text-[24px]">
-            {price}
-          </p>
-        ) : null}
-      </div>
-    </article>
+    <ul role="list" className="mt-8 space-y-4">
+      {items.map((item) => (
+        <li key={item} className="flex items-start gap-3 text-body text-ink">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="mt-1 h-4 w-4 shrink-0 text-ink"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

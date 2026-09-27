@@ -1,61 +1,55 @@
 import type { Metadata } from "next";
-import { Cormorant, Josefin_Sans, Lato, Playfair_Display } from "next/font/google";
+import { Lato, Playfair_Display } from "next/font/google";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import FloatingContact from "@/components/FloatingContact";
 import "./globals.css";
 
 const lato = Lato({
   variable: "--font-lato",
   subsets: ["latin"],
-  weight: ["300", "400", "700"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  display: "swap",
-});
-
-const josefin = Josefin_Sans({
-  variable: "--font-josefin",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  display: "swap",
-});
-
-const cormorant = Cormorant({
-  variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "600"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.jendssafaris.co.zw"),
   title: "Jends Safaris",
   description:
     "Jends Safaris offers expert-guided tours and experiences around Victoria Falls, ensuring guests enjoy unforgettable memories in a breathtaking natural setting.",
+  openGraph: {
+    type: "website",
+    siteName: "Jends Safaris",
+    locale: "en_US",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${lato.variable} ${playfair.variable} ${josefin.variable} ${cormorant.variable} h-full antialiased`}
+      className={`${lato.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <a
+          href="#content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[60] focus:rounded-[50vw] focus:bg-surface-inverse focus:px-5 focus:py-3 focus:text-btn focus:text-ink-inverse"
+        >
+          Skip to content
+        </a>
         <SiteHeader />
-        <main className="flex-1">
-          <a
-            href="#content"
-            className="absolute -m-[1px] h-px w-px overflow-hidden border-0 p-0 text-[17px] leading-[27.2px] text-gold [clip:rect(0,0,0,0)]"
-          >
-            Skip to content
-          </a>
+        <main id="content" tabIndex={-1} className="flex-1 focus:outline-none">
           {children}
         </main>
         <SiteFooter />
+        <FloatingContact />
       </body>
     </html>
   );

@@ -1,54 +1,44 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import { Container } from "@/components/ui";
 import { brand, footerColumns } from "@/lib/site";
 
 export default function SiteFooter() {
-  const pathname = usePathname();
-  const route = pathname?.replace(/\/+$/, "") ?? "";
-  const showColumns = route === "" || route === "/about" || route === "/activities" || route === "/contact";
-
   return (
-    <>
-      {showColumns ? (
-        <div>
-          <Container>
-            <div className="flex flex-col gap-[45px] py-[45px] md:flex-row md:gap-[45px]">
-              {footerColumns.map((column) => (
-                <div
-                  key={column.heading}
-                  className="flex flex-col md:w-[var(--col-w)] md:shrink-0 md:last:pl-[4px]"
-                  style={{ "--col-w": `${column.width}px` } as React.CSSProperties}
-                >
-                  <p
-                    className={`mb-[20px] tracking-[1px] text-[16px] leading-[27px] text-black${column.uppercase ? " uppercase" : ""}`}
-                  >
-                    {column.heading}
-                  </p>
-                  {column.lines.map((line) => (
-                    <p
-                      key={line}
-                      className="text-[16px] leading-[27px] text-ink"
-                    >
-                      {line}
-                    </p>
-                  ))}
-                </div>
-              ))}
+    <footer className="bg-surface-inverse text-ink-inverse">
+      <Container>
+        <div className="grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-16 lg:py-20">
+          {footerColumns.map((column) => (
+            <div key={column.heading}>
+              <h2 className="text-tagline text-ink-inverse/60">
+                {column.heading}
+              </h2>
+              <ul className="mt-6 space-y-1">
+                {column.lines.map((line) => (
+                  <li key={line.text}>
+                    {line.href ? (
+                      <a
+                        href={line.href}
+                        {...(line.external
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                        className="link-underline flex min-h-11 items-center py-1 text-body text-ink-inverse/75 transition-colors duration-200 hover:text-white"
+                      >
+                        {line.text}
+                      </a>
+                    ) : (
+                      <p className="py-1 text-body text-ink-inverse/75">
+                        {line.text}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
-          </Container>
+          ))}
         </div>
-      ) : null}
-      <footer className="site-footer">
-        <Container>
-          <div className="pt-[21px] pb-[24.41px]">
-            <p className="text-center text-[16px] leading-[25.59px] text-ink">
-              {brand.copyright}
-            </p>
-          </div>
-        </Container>
-      </footer>
-    </>
+        <div className="border-t border-white/10 py-8">
+          <p className="text-meta text-ink-inverse/60">{brand.copyright}</p>
+        </div>
+      </Container>
+    </footer>
   );
 }
