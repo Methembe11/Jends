@@ -75,7 +75,7 @@ export const ctaBackgrounds = {
  * its own within hours.
  */
 export const heroVideo = {
-  enabled: true,
+  enabled: false,
   src: "/video/hero.mp4",
 };
 

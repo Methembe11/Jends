@@ -139,20 +139,25 @@ export default function HeroExpand({
       ref={section}
       className="relative h-[100svh] w-full overflow-hidden bg-surface-inverse"
     >
-      {/* Photograph behind the frame. Fades out as the media expands. */}
-      <div data-expand-backdrop className="absolute inset-0">
-        <Image
-          src={background}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        {/* The reference sits a single 10%-black filter over its hero media
-            (rgba(0,0,0,.1)) and relies on type contrast alone. */}
-        <div aria-hidden="true" className="absolute inset-0 bg-black/10" />
-      </div>
+      {/* Photograph behind the frame, shown only when a video is playing.
+          The video then hands off to it as the frame expands. Without a video
+          the same photograph would be drawn twice and the cross-fade would be
+          invisible, so the frame is left to open out over the dark surface. */}
+      {video ? (
+        <div data-expand-backdrop className="absolute inset-0">
+          <Image
+            src={background}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+          {/* The reference sits a single 10%-black filter over its hero media
+              (rgba(0,0,0,.1)) and relies on type contrast alone. */}
+          <div aria-hidden="true" className="absolute inset-0 bg-black/10" />
+        </div>
+      ) : null}
 
       {/* The expanding media. Sits above the photograph, below the copy. */}
       <div className="absolute inset-0">
