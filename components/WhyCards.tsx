@@ -1,4 +1,5 @@
 import Reveal from "@/components/Reveal";
+import DrawIcon from "@/components/motion/DrawIcon";
 
 /**
  * Trust row. Reproduces the reference card anatomy: a beige well
@@ -73,7 +74,9 @@ export default function WhyCards({ items }: { items: string[] }) {
             <article className="group h-full">
               {/* The well: beige, 4px radius, oversized centred mark. */}
               <div className="mb-6 flex h-[150px] items-center justify-center rounded-well bg-surface-alt transition-colors duration-500 ease-out-expo group-hover:bg-surface-sunken lg:h-[436px]">
-                <Icon className="h-20 w-20 text-ink transition-transform duration-500 ease-out-expo group-hover:scale-105 lg:h-36 lg:w-36" />
+                <DrawIcon className="h-20 w-20 text-ink transition-transform duration-500 ease-out-expo group-hover:scale-105 lg:h-36 lg:w-36">
+                  <Icon className="h-full w-full" />
+                </DrawIcon>
               </div>
               <h3 className="text-h5 text-ink">{item}</h3>
             </article>

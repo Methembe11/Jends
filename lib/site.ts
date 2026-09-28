@@ -66,7 +66,7 @@ export const ctaBackgrounds = {
 /**
  * Homepage hero video, self-hosted.
  *
- * Must be an mp4 at public/video/hero.mp4. Set `enabled` to false to fall back
+ * Must be an mp4 under public/video/. Set `enabled` to false to fall back
  * to the still photograph; the poster frame is that same photograph, so the
  * hero looks correct either way.
  *

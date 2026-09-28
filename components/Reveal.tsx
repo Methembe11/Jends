@@ -1,68 +1,72 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useLayoutEffect, useRef } from "react";
 import type { ReactNode } from "react";
+import gsap from "gsap";
+import { DURATION, EASE, prefersReducedMotion, registerGsap } from "@/lib/motion";
 
 type RevealProps = {
   children: ReactNode;
   className?: string;
+  /** Milliseconds, as before. */
   delay?: number;
+  /** Stagger the wrapper's direct children instead of the wrapper itself. */
+  stagger?: number;
+  /** Rise distance in pixels. */
+  y?: number;
 };
 
-const subscribe = () => () => {};
-
 /**
- * Fade + 12px rise, triggered once when the block enters the viewport.
+ * Fade + rise, triggered once when the block enters the viewport.
  *
- * The `reveal` class is only applied after hydration, so the server-rendered
- * HTML has no opacity rule and the content is readable without JavaScript.
- * `prefers-reduced-motion` short-circuits straight to the visible state.
+ * Runs in a layout effect so the hidden start state is applied before the
+ * browser paints. That keeps the animation from flashing visible content,
+ * while leaving the server-rendered HTML fully readable if JavaScript never
+ * arrives. `prefers-reduced-motion` skips the tween entirely.
  */
-export default function Reveal({ children, className = "", delay = 0 }: RevealProps) {
+export default function Reveal({
+  children,
+  className = "",
+  delay = 0,
+  stagger,
+  y = 24,
+}: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const hydrated = useSyncExternalStore(
-    subscribe,
-    () => true,
-    () => false
-  );
-  const [visible, setVisible] = useState(false);
 
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
 
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    registerGsap();
+    if (prefersReducedMotion()) return;
 
-    if (typeof IntersectionObserver === "undefined" || reduceMotion) {
-      const frame = requestAnimationFrame(() => setVisible(true));
-      return () => cancelAnimationFrame(frame);
-    }
+    const targets = stagger ? Array.from(el.children) : el;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setVisible(true);
-            observer.disconnect();
-          }
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        targets,
+        { y, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: DURATION,
+          delay: delay / 1000,
+          ease: EASE,
+          stagger: stagger ?? 0,
+          scrollTrigger: {
+            trigger: el,
+            start: "top 85%",
+            once: true,
+          },
         }
-      },
-      { rootMargin: "0px 0px -12% 0px", threshold: 0.08 }
-    );
+      );
+    }, el);
 
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+    return () => ctx.revert();
+  }, [delay, stagger, y]);
 
   return (
-    <div
-      ref={ref}
-      className={`${hydrated ? "reveal" : ""} ${className}`.trim()}
-      data-visible={visible ? "true" : undefined}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-    >
+    <div ref={ref} className={className}>
       {children}
     </div>
   );

@@ -3,6 +3,7 @@ import { Lato, Playfair_Display } from "next/font/google";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import FloatingContact from "@/components/FloatingContact";
+import SmoothScroll from "@/components/motion/SmoothScroll";
 import "./globals.css";
 
 const lato = Lato({
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
+        <SmoothScroll />
         <SiteHeader />
         <main id="content" tabIndex={-1} className="flex-1 focus:outline-none">
           {children}

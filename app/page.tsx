@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { CtaBand, Hero } from "@/components/bands";
+import { CtaBand } from "@/components/bands";
+import HeroExpand from "@/components/motion/HeroExpand";
 import Reveal from "@/components/Reveal";
-import ScrollGallery from "@/components/ScrollGallery";
+import PinnedGallery from "@/components/motion/PinnedGallery";
 import WhyCards from "@/components/WhyCards";
 import {
   Container,
@@ -37,7 +38,7 @@ export default function Home() {
 
   return (
     <>
-      <Hero
+      <HeroExpand
         background={heroBackgrounds.home}
         video={heroVideo.enabled ? heroVideo.src : undefined}
         eyebrow="Experience the Adventure"
@@ -47,7 +48,7 @@ export default function Home() {
         <PrimaryButton href="/contact/" tone="light">
           Plan Your Safari
         </PrimaryButton>
-      </Hero>
+      </HeroExpand>
 
       {/* Introduction */}
       <Section>
@@ -162,21 +163,24 @@ export default function Home() {
         </Container>
       </Section>
 
-      {/* Photo gallery — the page's one moment of lateral motion */}
-      <Section>
-        <Container>
-          <Reveal>
-            <SectionHeader
-              eyebrow={homeGallery.eyebrow}
-              title={homeGallery.title}
-              lede={homeGallery.lede}
-            />
-          </Reveal>
-          <div className="mt-14">
-            <ScrollGallery items={gallery} />
+      {/* Photo gallery — the page's one moment of lateral motion. Pinned and
+          scrubbed sideways on pointer devices; a swipeable strip on touch. */}
+      <PinnedGallery
+        items={gallery}
+        header={
+          <div className="mb-12">
+            <Container>
+              <Reveal>
+                <SectionHeader
+                  eyebrow={homeGallery.eyebrow}
+                  title={homeGallery.title}
+                  lede={homeGallery.lede}
+                />
+              </Reveal>
+            </Container>
           </div>
-        </Container>
-      </Section>
+        }
+      />
 
       {/* Testimonials — hairline-bordered cards on #f9f9f9 that warm to
           beige on hover, with the quote set large and light. */}

@@ -170,20 +170,24 @@
   }
 }
 
-@layer components {
-  /* ---- Scroll reveal -------------------------------------------------- */
-  .reveal {
-    opacity: 0;
-    transform: translateY(12px);
-    transition:
-      opacity 600ms var(--ease-out-expo),
-      transform 600ms var(--ease-out-expo);
-  }
+/* Lenis owns the scroll position while it is active, so it has to win over
+   the `scroll-behavior: smooth` above. When it is not running (reduced motion,
+   or before hydration) native scrolling behaves normally. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
 
-  .reveal[data-visible="true"] {
-    opacity: 1;
-    transform: none;
-  }
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 /* Arrow sits inside the 26px badge and nudges up-right on group hover. */
@@ -236,10 +240,5 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .reveal {
-    opacity: 1;
-    transform: none;
   }
 }

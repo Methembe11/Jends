@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import HeroVideo from "@/components/HeroVideo";
+import Parallax from "@/components/motion/Parallax";
+import MediaDrift from "@/components/motion/MediaDrift";
 
 /* ==========================================================================
    Layout
@@ -313,6 +315,7 @@ export function MediaFrame({
   sizes = "(min-width: 1024px) 50vw, 100vw",
   className = "",
   imageClassName = "",
+  parallax = true,
 }: {
   src: string;
   alt: string;
@@ -321,6 +324,8 @@ export function MediaFrame({
   sizes?: string;
   className?: string;
   imageClassName?: string;
+  /** Scrub-linked drift. On by default; the image is scaled to allow travel. */
+  parallax?: boolean;
 }) {
   const ratios = {
     portrait: "aspect-portrait",
@@ -331,14 +336,27 @@ export function MediaFrame({
 
   return (
     <div className={`media-frame ${ratios[ratio]} ${className}`}>
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        priority={priority}
-        sizes={sizes}
-        className={`object-cover ${imageClassName}`}
-      />
+      {parallax ? (
+        <Parallax className="h-full w-full">
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            priority={priority}
+            sizes={sizes}
+            className={`object-cover ${imageClassName}`}
+          />
+        </Parallax>
+      ) : (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          priority={priority}
+          sizes={sizes}
+          className={`object-cover ${imageClassName}`}
+        />
+      )}
     </div>
   );
 }
@@ -354,6 +372,7 @@ export function BackgroundBand({
   className = "",
   minHeight = "min-h-[68vh] lg:min-h-[76vh]",
   priority = false,
+  mediaDrift = true,
 }: {
   image: string;
   /** Optional self-hosted mp4. Plays behind `image`, which stays as the poster. */
@@ -362,27 +381,31 @@ export function BackgroundBand({
   className?: string;
   minHeight?: string;
   priority?: boolean;
+  /** Scrub-linked drift on the background. Off leaves the media static. */
+  mediaDrift?: boolean;
 }) {
+  const media = video ? (
+    <HeroVideo
+      src={video}
+      poster={image}
+      className="absolute inset-0 h-full w-full object-cover"
+    />
+  ) : (
+    <Image
+      src={image}
+      alt=""
+      fill
+      priority={priority}
+      sizes="100vw"
+      className="object-cover"
+    />
+  );
+
   return (
     <section
       className={`relative flex w-full items-end overflow-hidden bg-surface-inverse ${minHeight} ${className}`}
     >
-      {video ? (
-        <HeroVideo
-          src={video}
-          poster={image}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      ) : (
-        <Image
-          src={image}
-          alt=""
-          fill
-          priority={priority}
-          sizes="100vw"
-          className="object-cover"
-        />
-      )}
+      {mediaDrift ? <MediaDrift>{media}</MediaDrift> : media}
       {/* The reference sits a single 10%-black filter over its hero media
           (rgba(0,0,0,.1)) and relies on type contrast alone. */}
       <div

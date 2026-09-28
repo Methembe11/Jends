@@ -6,6 +6,7 @@ import {
   Eyebrow,
   SectionTitle,
 } from "@/components/ui";
+import HeroStage from "@/components/motion/HeroStage";
 
 /**
  * Full-height photographic hero. Mirrors the reference metrics: 100vh media,
@@ -29,22 +30,32 @@ export function Hero({
   children?: ReactNode;
 }) {
   return (
-    <BackgroundBand image={background} video={video} minHeight="min-h-[100svh]" priority>
-      <Container>
-        <div className="flex flex-col items-start pb-[6.25rem] pt-32">
-          {eyebrow ? <Eyebrow tone="light">{eyebrow}</Eyebrow> : null}
-          <h1 className="mt-6 max-w-[726px] text-display text-ink-inverse">
-            {title}
-          </h1>
-          {subtitle ? (
-            <p className="mt-6 max-w-[416px] text-body text-ink-inverse">
-              {subtitle}
-            </p>
-          ) : null}
-          {children ? <div className="mt-8">{children}</div> : null}
-        </div>
-      </Container>
-    </BackgroundBand>
+    <HeroStage>
+      <BackgroundBand image={background} video={video} minHeight="min-h-[100svh]" priority>
+        <Container>
+          <div className="flex flex-col items-start pb-[6.25rem] pt-32">
+            {eyebrow ? (
+              <span data-hero-item className="block">
+                <Eyebrow tone="light">{eyebrow}</Eyebrow>
+              </span>
+            ) : null}
+            <h1 data-hero-item className="mt-6 max-w-[726px] text-display text-ink-inverse">
+              {title}
+            </h1>
+            {subtitle ? (
+              <p data-hero-item className="mt-6 max-w-[416px] text-body text-ink-inverse">
+                {subtitle}
+              </p>
+            ) : null}
+            {children ? (
+              <div data-hero-item className="mt-8">
+                {children}
+              </div>
+            ) : null}
+          </div>
+        </Container>
+      </BackgroundBand>
+    </HeroStage>
   );
 }
 
