@@ -188,6 +188,15 @@ function ArrowBadge({ tone }: { tone: ButtonTone }) {
   );
 }
 
+/**
+ * The reference's pill resolves to 40px tall, which sits under the 44px
+ * minimum touch target. `min-h-11` lifts the pill itself to 44px rather than
+ * padding out a pseudo-element: an extended hit area is easy to occlude with
+ * the next block in the flow, which would silently eat the extra taps.
+ */
+const PILL =
+  "inline-flex min-h-11 items-center justify-center rounded-[50vw] border px-5 py-3 text-btn transition-colors duration-300 ease-out-expo";
+
 export function PrimaryButton({
   href,
   children,
@@ -210,7 +219,7 @@ export function PrimaryButton({
       className={`group inline-flex items-center gap-2 ${className}`}
     >
       <span
-        className={`inline-flex items-center justify-center rounded-[50vw] border px-5 py-3 text-btn transition-colors duration-300 ease-out-expo ${pills[tone]}`}
+        className={`${PILL} ${pills[tone]}`}
       >
         {children}
       </span>
@@ -241,7 +250,7 @@ export function SecondaryButton({
       className={`group inline-flex items-center gap-2 ${className}`}
     >
       <span
-        className={`inline-flex items-center justify-center rounded-[50vw] border px-5 py-3 text-btn transition-colors duration-300 ease-out-expo ${pills[tone]}`}
+        className={`${PILL} ${pills[tone]}`}
       >
         {children}
       </span>

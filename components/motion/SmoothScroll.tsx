@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { expoOut, prefersReducedMotion, registerGsap } from "@/lib/motion";
+import { expoOut, prefersReducedMotion, registerGsap, setLenis } from "@/lib/motion";
 
 /**
  * Momentum scrolling for the whole site.
@@ -38,6 +38,10 @@ export default function SmoothScroll() {
 
       lenis.on("scroll", ScrollTrigger.update);
 
+      // Expose the instance so overlays can stop momentum scrolling, which a
+      // CSS overflow lock alone will not do against Lenis.
+      setLenis(lenis);
+
       const raf = (time: number) => lenis.raf(time * 1000);
       gsap.ticker.add(raf);
       gsap.ticker.lagSmoothing(0);
@@ -48,6 +52,7 @@ export default function SmoothScroll() {
 
       dispose = () => {
         gsap.ticker.remove(raf);
+        setLenis(null);
         lenis.destroy();
       };
     })();

@@ -48,3 +48,51 @@ export function isTouchDevice() {
 export function expoOut(t: number) {
   return Math.min(1, 1.001 - 2 ** (-10 * t));
 }
+
+/**
+ * Scroll lock for the mobile menu.
+ *
+ * Locking `document.body` does nothing here: the scrolling element is `<html>`,
+ * so only an overflow change on `<html>` (or `<body>` while it happens to be
+ * the scroller) propagates to the viewport. Lenis additionally keeps its own
+ * animated scroll position and will happily glide past a CSS lock, so it has to
+ * be stopped directly. The gutter compensation prevents the scrollbar's
+ * disappearance from shifting the layout sideways.
+ */
+type LenisLike = { stop: () => void; start: () => void };
+
+let lenisRef: LenisLike | null = null;
+let lockCount = 0;
+let savedPaddingRight = "";
+
+export function setLenis(instance: LenisLike | null) {
+  lenisRef = instance;
+}
+
+export function lockScroll() {
+  if (typeof document === "undefined") return;
+  lockCount += 1;
+  if (lockCount > 1) return;
+
+  lenisRef?.stop();
+
+  const root = document.documentElement;
+  const gutter = window.innerWidth - root.clientWidth;
+  if (gutter > 0) {
+    savedPaddingRight = root.style.paddingRight;
+    root.style.paddingRight = `${gutter}px`;
+  }
+  root.style.overflow = "hidden";
+}
+
+export function unlockScroll() {
+  if (typeof document === "undefined") return;
+  lockCount = Math.max(0, lockCount - 1);
+  if (lockCount > 0) return;
+
+  lenisRef?.start();
+
+  const root = document.documentElement;
+  root.style.overflow = "";
+  root.style.paddingRight = savedPaddingRight;
+}

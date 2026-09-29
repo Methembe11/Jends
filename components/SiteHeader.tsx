@@ -3,9 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Container, PrimaryButton } from "@/components/ui";
 import { brand, navItems, whatsapp } from "@/lib/site";
+import { lockScroll, unlockScroll } from "@/lib/motion";
+
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input, textarea, select, [tabindex]:not([tabindex="-1"])';
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -55,6 +59,8 @@ function ChatIcon({ className = "" }: { className?: string }) {
 export default function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   // Close the mobile panel on navigation. Adjusting state during render is
   // the documented alternative to a setState-in-effect effect.
@@ -64,11 +70,62 @@ export default function SiteHeader() {
     setOpen(false);
   }
 
+  // Lenis must be stopped, not just overflow-hidden, or the page keeps
+  // gliding behind the open panel.
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
+    if (!open) return;
+    lockScroll();
+    return unlockScroll;
+  }, [open]);
+
+  // Escape closes, and Tab is kept inside the panel so focus cannot wander
+  // into the page that is visually covered by it.
+  useEffect(() => {
+    if (!open) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const panel = panelRef.current;
+      if (!panel) return;
+      const items = [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+        (el) => el.offsetParent !== null,
+      );
+      if (items.length === 0) return;
+
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  // Move focus in on open so the panel is reachable immediately, and hand it
+  // back to the toggle on close. Guarded so the first paint, when `open` is
+  // still false, never yanks focus away from the document.
+  const hasOpened = useRef(false);
+  useEffect(() => {
+    if (open) {
+      hasOpened.current = true;
+      panelRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+      return;
+    }
+    if (hasOpened.current) toggleRef.current?.focus();
   }, [open]);
 
   return (
@@ -79,7 +136,7 @@ export default function SiteHeader() {
             <Link
               href="/"
               aria-label={`${brand.name} — home`}
-              className="inline-flex shrink-0 items-center"
+              className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center"
             >
               <Image
                 src={brand.logo}
@@ -123,9 +180,11 @@ export default function SiteHeader() {
             </div>
 
             <button
+              ref={toggleRef}
               type="button"
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
+              aria-controls="mobile-menu"
               onClick={() => setOpen((value) => !value)}
               className="grid h-11 w-11 shrink-0 place-items-center text-ink lg:hidden"
             >
@@ -155,7 +214,11 @@ export default function SiteHeader() {
           hairline top border and oversized light-weight serif links.
           `top` matches the bar exactly: 1.125rem padding + 2.75rem control. */}
       {open ? (
-        <div className="fixed inset-x-0 bottom-0 top-20 z-[45] flex flex-col border-t border-line bg-surface-sunken lg:hidden">
+        <div
+          id="mobile-menu"
+          ref={panelRef}
+          className="fixed inset-x-0 bottom-0 top-20 z-[45] flex flex-col border-t border-line bg-surface-sunken lg:hidden"
+        >
           <nav aria-label="Mobile" className="flex-1 overflow-y-auto px-5 pt-12">
             <ul className="flex flex-col">
               {navItems.map((item) => {
@@ -165,6 +228,7 @@ export default function SiteHeader() {
                     <Link
                       href={item.href}
                       aria-current={active ? "page" : undefined}
+                      onClick={() => setOpen(false)}
                       className={`flex min-h-16 items-center font-display text-[2.5625rem] font-normal leading-none ${
                         active ? "text-ink" : "text-ink-muted"
                       }`}
